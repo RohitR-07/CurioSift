@@ -69,10 +69,10 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <NavLink to="/dashboard">
+          <NavLink to="/login">
             <Button variant="ghost" className="font-semibold">Sign In</Button>
           </NavLink>
-          <NavLink to="/dashboard">
+          <NavLink to="/signup">
             <Button className="font-semibold shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30">
               Get Started
             </Button>
@@ -110,10 +110,10 @@ export default function Navbar() {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <NavLink to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                <NavLink to="/login" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" className="w-full font-semibold">Sign In</Button>
                 </NavLink>
-                <NavLink to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                <NavLink to="/signup" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full font-semibold">Get Started</Button>
                 </NavLink>
               </div>

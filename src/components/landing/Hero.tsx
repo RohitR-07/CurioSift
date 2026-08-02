@@ -53,13 +53,13 @@ export default function Hero() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-10 flex flex-col sm:flex-row items-center gap-4"
         >
-          <NavLink to="/dashboard">
+          <NavLink to="/signup">
             <Button size="lg" className="w-full sm:w-auto gap-2.5 font-bold shadow-xl shadow-primary/20 px-8">
               <UploadCloud className="w-5 h-5" />
               Upload PDF
             </Button>
           </NavLink>
-          <NavLink to="/dashboard">
+          <NavLink to="/signup">
             <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2 font-bold bg-white px-8">
               Get Started <ArrowRight className="w-4 h-4" />
             </Button>

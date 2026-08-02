@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 import { ToastProvider } from './context/ToastContext';
 
@@ -12,6 +14,10 @@ function App() {
         <Routes>
           {/* Public Landing Page */}
           <Route path="/" element={<Landing />} />
+          
+          {/* Authentication Pages */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           
           {/* Protected Application Routes */}
           <Route element={<AppLayout />}>
@@ -28,6 +34,9 @@ function App() {
             <Route path="/analytics" element={<div className="p-8">Analytics Placeholder</div>} />
             <Route path="/settings" element={<div className="p-8">Settings Placeholder</div>} />
           </Route>
+
+          {/* Catch-all redirect for unknown routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </ToastProvider>

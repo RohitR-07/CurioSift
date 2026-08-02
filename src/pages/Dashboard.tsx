@@ -41,17 +41,25 @@ const features = [
 ];
 
 const stats = [
-  { label: 'PDFs Uploaded', value: 12, suffix: '', icon: Files, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { label: 'AI Summaries', value: 36, suffix: '', icon: FileText, color: 'text-green-500', bg: 'bg-green-50' },
-  { label: 'Questions Gen.', value: 142, suffix: '', icon: HelpCircle, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { label: 'Study Hours Saved', value: 54, suffix: '+', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
+  { label: 'Files Uploaded', value: 42, suffix: '', icon: Files, color: 'text-blue-500', bg: 'bg-blue-50' },
+  { label: 'AI Summaries', value: 128, suffix: '', icon: FileText, color: 'text-green-500', bg: 'bg-green-50' },
+  { label: 'Quizzes Completed', value: 24, suffix: '', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
+  { label: 'Study Hours', value: 350, suffix: '+', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
 ];
 
 const initialPdfs = [
-  { id: 1, name: 'Machine Learning Basics.pdf', date: '2 hours ago', progress: 85, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { id: 2, name: 'Advanced Calculus Chapter 4.pdf', date: 'Yesterday', progress: 40, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { id: 3, name: 'History of Renaissance.pdf', date: '2 days ago', progress: 100, color: 'text-green-500', bg: 'bg-green-50' },
-  { id: 4, name: 'Biology 101 - Cell Structure.pdf', date: '3 days ago', progress: 15, color: 'text-orange-500', bg: 'bg-orange-50' },
+  { id: 1, name: 'Python Notes.pdf', date: '2 hours ago', progress: 100, color: 'text-blue-500', bg: 'bg-blue-50' },
+  { id: 2, name: 'DBMS Unit 3.pdf', date: '5 hours ago', progress: 45, color: 'text-purple-500', bg: 'bg-purple-50' },
+  { id: 3, name: 'Operating Systems.pdf', date: 'Yesterday', progress: 80, color: 'text-green-500', bg: 'bg-green-50' },
+  { id: 4, name: 'AI Assignment.pdf', date: '2 days ago', progress: 10, color: 'text-orange-500', bg: 'bg-orange-50' },
+  { id: 5, name: 'Machine Learning.pdf', date: '3 days ago', progress: 100, color: 'text-rose-500', bg: 'bg-rose-50' },
+];
+
+const recentActivity = [
+  { id: 1, action: 'Generated AI Summary', file: 'DBMS Unit 3.pdf', time: '10 mins ago', icon: FileText, color: 'text-green-500', bg: 'bg-green-50' },
+  { id: 2, action: 'Completed Quiz', file: 'Operating Systems.pdf', time: '1 hour ago', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
+  { id: 3, action: 'Started AI Chat', file: 'Python Notes.pdf', time: '3 hours ago', icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50' },
+  { id: 4, action: 'Uploaded PDF', file: 'AI Assignment.pdf', time: 'Yesterday', icon: UploadCloud, color: 'text-orange-500', bg: 'bg-orange-50' },
 ];
 
 export default function Dashboard() {
@@ -71,6 +79,23 @@ export default function Dashboard() {
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-12">
       
+      {/* Welcome Section */}
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-extrabold text-text tracking-tight">
+            Welcome back, Deepak 👋
+          </h1>
+          <p className="text-text-secondary font-medium">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+        <div className="bg-primary/5 border border-primary/10 px-4 py-2 rounded-xl">
+          <p className="text-sm font-semibold text-primary">
+            "Success is the sum of small efforts, repeated day in and day out."
+          </p>
+        </div>
+      </section>
+
       {/* Premium Hero Section */}
       <section className="flex flex-col lg:flex-row items-center justify-between gap-12 pt-4">
         <motion.div 
@@ -244,9 +269,11 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 { name: 'Upload PDF', icon: UploadCloud, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { name: 'Summarize', icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
-                { name: 'Ask AI', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
-                { name: 'Create Quiz', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
+                { name: 'AI Summary', icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
+                { name: 'AI Chat', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
+                { name: 'Generate Quiz', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
+                { name: 'Flashcards', icon: BrainCircuit, color: 'text-rose-600', bg: 'bg-rose-50' },
+                { name: 'Notes', icon: BookOpen, color: 'text-teal-600', bg: 'bg-teal-50' },
               ].map((action, i) => (
                 <button 
                   key={i} 
@@ -341,6 +368,42 @@ export default function Dashboard() {
                   />
                 )}
               </AnimatePresence>
+            </div>
+          </section>
+
+          {/* Recent AI Activity */}
+          <section className="space-y-4">
+            <SectionHeader 
+              title="Recent AI Activity" 
+              action={
+                <button className="text-sm font-semibold text-primary hover:text-blue-700 hover:underline focus-visible:outline-none focus-visible:underline">
+                  History
+                </button>
+              } 
+            />
+            
+            <div className="space-y-3">
+              {recentActivity.map((activity) => (
+                <div 
+                  key={activity.id}
+                  className="p-4 rounded-2xl bg-white border border-border shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow group"
+                >
+                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", activity.bg, activity.color)}>
+                    <activity.icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">
+                      {activity.action}
+                    </p>
+                    <p className="text-xs font-medium text-text-secondary truncate mt-0.5">
+                      {activity.file}
+                    </p>
+                  </div>
+                  <div className="text-[10px] font-semibold text-text-secondary bg-gray-50 px-2 py-1 rounded-md shrink-0">
+                    {activity.time}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
