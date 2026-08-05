@@ -14,18 +14,17 @@ import {
   Play,
   Files,
   MoreVertical,
-  CheckCircle2,
   FolderOpen,
   Edit2,
   Trash2,
   AlertCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { EmptyState } from '../components/ui/EmptyState';
 import { StatCard } from '../components/ui/StatCard';
 import { FeatureCard } from '../components/ui/FeatureCard';
+import { UploadArea } from '../components/dashboard/UploadArea';
 import { cn } from '../utils/cn';
 import { useToast } from '../context/ToastContext';
 
@@ -62,10 +61,15 @@ const recentActivity = [
   { id: 4, action: 'Uploaded PDF', file: 'AI Assignment.pdf', time: 'Yesterday', icon: UploadCloud, color: 'text-orange-500', bg: 'bg-orange-50' },
 ];
 
+import { FileManager } from '../components/dashboard/FileManager';
+import { FileViewerModal } from '../components/dashboard/FileViewerModal';
+import { useFiles, FileRecord } from '../context/FileContext';
+
 export default function Dashboard() {
-  const [isDragging, setIsDragging] = useState(false);
   const [pdfs, setPdfs] = useState(initialPdfs);
+  const [viewingFile, setViewingFile] = useState<FileRecord | null>(null);
   const { toast } = useToast();
+  const { files } = useFiles();
 
   const handleDelete = (id: number) => {
     setPdfs(pdfs.filter(p => p.id !== id));
@@ -73,8 +77,21 @@ export default function Dashboard() {
   };
 
   const handleUploadClick = () => {
-    toast('Upload functionality coming in Module 2', 'info');
+    document.getElementById('upload-area-section')?.scrollIntoView({ behavior: 'smooth' });
   };
+  const handleNavigate = (direction: 'prev' | 'next') => {
+    if (!viewingFile) return;
+    const currentIndex = files.findIndex(f => f.id === viewingFile.id);
+    if (direction === 'prev' && currentIndex > 0) {
+      setViewingFile(files[currentIndex - 1]);
+    } else if (direction === 'next' && currentIndex < files.length - 1) {
+      setViewingFile(files[currentIndex + 1]);
+    }
+  };
+
+  const viewingIndex = viewingFile ? files.findIndex(f => f.id === viewingFile.id) : -1;
+  const hasPrev = viewingIndex > 0;
+  const hasNext = viewingIndex >= 0 && viewingIndex < files.length - 1;
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-12">
@@ -165,53 +182,9 @@ export default function Dashboard() {
       </section>
 
       {/* Redesigned Upload Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <div 
-          className={cn(
-            "relative overflow-hidden border-2 border-dashed rounded-3xl p-14 transition-all duration-300 ease-in-out flex flex-col items-center justify-center gap-5 text-center group bg-white",
-            isDragging ? 'border-primary bg-primary/[0.03] scale-[1.01] shadow-[0_0_40px_rgba(37,99,235,0.15)]' : 'border-border/80 hover:border-primary/40 hover:bg-gray-50/50 hover:shadow-lg hover:shadow-primary/5'
-          )}
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(e) => { e.preventDefault(); setIsDragging(false); toast('Upload triggered!', 'success'); }}
-        >
-          <div className={cn(
-            "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 mb-2",
-            isDragging ? "bg-primary/10 scale-110" : "bg-blue-50 group-hover:scale-110 group-hover:bg-blue-100/50"
-          )}>
-            <UploadCloud className={cn(
-              "w-12 h-12 transition-colors",
-              isDragging ? "text-primary" : "text-primary/70 group-hover:text-primary"
-            )} />
-          </div>
-          
-          <div className="space-y-1">
-            <h3 className="text-2xl font-bold text-text tracking-tight">Drag & Drop your PDF here</h3>
-            <p className="text-text-secondary text-base max-w-md mx-auto">
-              Upload your study material and unlock AI-powered learning. Maximum file size is <span className="font-semibold text-text">20 MB</span>.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 mt-2">
-            <Badge variant="success" className="px-3 py-1 bg-green-50">
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> PDF
-            </Badge>
-            <span className="text-xs font-medium text-text-secondary">
-              Coming soon: DOCX, PPT, TXT
-            </span>
-          </div>
-
-          <div className="mt-4">
-            <Button variant="outline" className="shadow-sm bg-white" onClick={handleUploadClick}>
-              Browse Files
-            </Button>
-          </div>
-        </div>
-      </motion.section>
+      <div id="upload-area-section" className="scroll-mt-24">
+        <UploadArea onUpload={(files) => toast(`Selected ${files?.length} files for upload`, 'success')} />
+      </div>
 
       {/* Premium Statistics using reusable StatCard */}
       <motion.section 
@@ -278,7 +251,13 @@ export default function Dashboard() {
                 <button 
                   key={i} 
                   className="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl bg-white border border-border hover:border-primary hover:shadow-lg hover:shadow-primary/5 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  onClick={() => toast(`Quick action: ${action.name}`, 'info')}
+                  onClick={() => {
+                    if (action.name === 'Upload PDF') {
+                      handleUploadClick();
+                    } else {
+                      toast(`Quick action: ${action.name}`, 'info');
+                    }
+                  }}
                 >
                   <div className={cn("p-3 rounded-full transition-transform duration-300 group-hover:scale-110", action.bg, action.color)}>
                     <action.icon className="w-6 h-6" />
@@ -409,6 +388,23 @@ export default function Dashboard() {
 
         </div>
       </div>
+
+      {/* File Management Center (Full Width) */}
+      <section className="pt-8 border-t border-border mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <SectionHeader title="File Management Center" />
+        </div>
+        <FileManager onOpenFile={(file) => setViewingFile(file)} />
+      </section>
+
+      {/* Fullscreen File Viewer */}
+      <FileViewerModal 
+        file={viewingFile}
+        onClose={() => setViewingFile(null)}
+        onNavigate={handleNavigate}
+        hasNext={hasNext}
+        hasPrev={hasPrev}
+      />
     </div>
   );
 }

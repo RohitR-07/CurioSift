@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 
 import { ToastProvider } from './context/ToastContext';
+import { FileProvider } from './context/FileContext';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           
           {/* Protected Application Routes */}
-          <Route element={<AppLayout />}>
+          <Route element={<FileProvider><AppLayout /></FileProvider>}>
             <Route path="/dashboard" element={<Dashboard />} />
             {/* Placeholders for future routes */}
             <Route path="/pdfs" element={<div className="p-8">My PDFs Placeholder</div>} />
