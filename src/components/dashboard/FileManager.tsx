@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFiles, FileRecord, FileCategory } from '../../context/FileContext';
 import { Search, Filter, Trash2, Download, ExternalLink, File, FileText, Image, FileVideo, Music, Code, FileArchive, SearchX } from 'lucide-react';
@@ -8,13 +9,10 @@ import { EmptyState } from '../ui/EmptyState';
 import { Badge } from '../ui/Badge';
 import { useToast } from '../../context/ToastContext';
 
-interface FileManagerProps {
-  onOpenFile: (file: FileRecord) => void;
-}
-
-export function FileManager({ onOpenFile }: FileManagerProps) {
+export function FileManager() {
   const { files, deleteFile, getFileUrl } = useFiles();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FileCategory | 'all'>('all');
@@ -192,7 +190,10 @@ export function FileManager({ onOpenFile }: FileManagerProps) {
                       {getCategoryIcon(file.category)}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-semibold text-text truncate group-hover:text-primary transition-colors cursor-pointer" onClick={() => onOpenFile(file)}>
+                      <h4
+                        className="font-semibold text-text truncate group-hover:text-primary transition-colors cursor-pointer"
+                        onClick={() => navigate(`/viewer/${file.id}`)}
+                      >
                         {file.name}
                       </h4>
                       <div className="flex items-center gap-3 mt-1 text-xs text-text-secondary font-medium">
@@ -208,7 +209,12 @@ export function FileManager({ onOpenFile }: FileManagerProps) {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="outline" size="sm" className="h-9 px-3 bg-white" onClick={() => onOpenFile(file)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-3 bg-white"
+                      onClick={() => navigate(`/viewer/${file.id}`)}
+                    >
                       <ExternalLink className="w-4 h-4 mr-1.5" /> Open
                     </Button>
                     <button 

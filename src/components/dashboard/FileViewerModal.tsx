@@ -1,15 +1,16 @@
 import { useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileRecord, useFiles } from '../../context/FileContext';
-import { X, Download, Trash2, ChevronLeft, ChevronRight, File } from 'lucide-react';
+import { X, Download, Trash2, ChevronLeft, ChevronRight, File, Maximize2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 
-// Lazy load viewers to improve performance
 import { PdfViewer } from '../viewers/PdfViewer';
 import { DocxViewer } from '../viewers/DocxViewer';
 import { XlsxViewer } from '../viewers/XlsxViewer';
 import { PptxViewer } from '../viewers/PptxViewer';
 import { CodeViewer } from '../viewers/CodeViewer';
+import { TextViewer } from '../viewers/TextViewer';
 import { MediaViewer } from '../viewers/MediaViewer';
 
 interface FileViewerModalProps {
@@ -22,6 +23,7 @@ interface FileViewerModalProps {
 
 export function FileViewerModal({ file, onClose, onNavigate, hasNext, hasPrev }: FileViewerModalProps) {
   const { getFileUrl, deleteFile } = useFiles();
+  const navigate = useNavigate();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -77,8 +79,8 @@ export function FileViewerModal({ file, onClose, onNavigate, hasNext, hasPrev }:
       case 'document': return <DocxViewer url={fileUrl} />;
       case 'spreadsheet': return <XlsxViewer url={fileUrl} />;
       case 'presentation': return <PptxViewer url={fileUrl} />;
-      case 'code':
-      case 'text': return <CodeViewer url={fileUrl} extension={file.extension} />;
+      case 'code': return <CodeViewer url={fileUrl} extension={file.extension} />;
+      case 'text': return <TextViewer url={fileUrl} extension={file.extension} />;
       case 'image':
       case 'video':
       case 'audio': return <MediaViewer url={fileUrl} category={file.category} name={file.name} />;
@@ -184,6 +186,13 @@ export function FileViewerModal({ file, onClose, onNavigate, hasNext, hasPrev }:
             </div>
 
             <div className="mt-auto p-6 flex flex-col gap-3 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => { onClose(); navigate(`/viewer/${file.id}`); }}
+                className="w-full justify-center"
+              >
+                <Maximize2 className="w-4 h-4 mr-2" /> Open Full Page
+              </Button>
               <Button onClick={handleDownload} className="w-full justify-center shadow-sm">
                 <Download className="w-4 h-4 mr-2" /> Download
               </Button>

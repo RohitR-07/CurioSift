@@ -3,8 +3,10 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import { Loader2, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 
-// Worker required for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Worker for pdfjs-dist v5 (used by react-pdf v10).
+// The worker is copied to /public/pdf.worker.min.mjs via the project setup.
+// Using a local worker avoids CDN dependency and guarantees version match.
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 interface PdfViewerProps {
   url: string;

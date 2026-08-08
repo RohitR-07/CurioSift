@@ -394,7 +394,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-6">
           <SectionHeader title="File Management Center" />
         </div>
-        <FileManager onOpenFile={(file) => setViewingFile(file)} />
+        <FileManager />
       </section>
 
       {/* Fullscreen File Viewer */}
