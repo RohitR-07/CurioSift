@@ -2,16 +2,18 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFiles, FileRecord, FileCategory } from '../../context/FileContext';
-import { Search, Filter, Trash2, Download, ExternalLink, File, FileText, Image, FileVideo, Music, Code, FileArchive, SearchX } from 'lucide-react';
+import { useProcessing } from '../../context/ProcessingContext';
+import { isProcessable } from '../../services/documentProcessor';
+import { Search, Filter, Trash2, Download, ExternalLink, File, FileText, Image, FileVideo, Music, Code, FileArchive, SearchX, CheckCircle2, Cpu, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Button } from '../ui/Button';
 import { EmptyState } from '../ui/EmptyState';
-import { Badge } from '../ui/Badge';
 import { useToast } from '../../context/ToastContext';
 
 export function FileManager() {
   const { files, deleteFile, getFileUrl } = useFiles();
   const { toast } = useToast();
+  const { getRecord } = useProcessing();
   const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -196,15 +198,39 @@ export function FileManager() {
                       >
                         {file.name}
                       </h4>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-text-secondary font-medium">
-                        <span className="uppercase tracking-wider">{file.extension}</span>
-                        <span>•</span>
-                        <span>{formatSize(file.size)}</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="hidden sm:inline">{new Date(file.uploadTime).toLocaleString()}</span>
-                        <span>•</span>
-                        <Badge variant="success" className="px-1.5 py-0 text-[10px]">Ready</Badge>
-                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-text-secondary font-medium flex-wrap">
+                          <span className="uppercase tracking-wider">{file.extension}</span>
+                          <span>•</span>
+                          <span>{formatSize(file.size)}</span>
+                          <span className="hidden sm:inline">•</span>
+                          <span className="hidden sm:inline">{new Date(file.uploadTime).toLocaleString()}</span>
+                          {/* Processing status badge */}
+                          {(() => {
+                            if (!isProcessable(file.category)) return null;
+                            const rec = getRecord(file.id);
+                            const status = rec?.status ?? 'idle';
+                            if (status === 'processed') return (
+                              <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 border border-green-200 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                <CheckCircle2 className="w-3 h-3" /> Processed
+                              </span>
+                            );
+                            if (status === 'processing') return (
+                              <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                <Loader2 className="w-3 h-3 animate-spin" /> Processing…
+                              </span>
+                            );
+                            if (status === 'error') return (
+                              <span className="inline-flex items-center gap-1 text-red-600 bg-red-50 border border-red-200 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                <AlertTriangle className="w-3 h-3" /> Failed
+                              </span>
+                            );
+                            return (
+                              <span className="inline-flex items-center gap-1 text-text-secondary bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                <Cpu className="w-3 h-3" /> Ready to Process
+                              </span>
+                            );
+                          })()}
+                        </div>
                     </div>
                   </div>
 

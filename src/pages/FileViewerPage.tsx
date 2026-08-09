@@ -18,9 +18,13 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useFiles, FileRecord, FileCategory } from '../context/FileContext';
+import { useProcessing } from '../context/ProcessingContext';
+import { useStudyMaterial } from '../context/StudyMaterialContext';
 import { Button } from '../components/ui/Button';
+import { ProcessingPanel } from '../components/viewers/ProcessingPanel';
+import { StudyMaterialPanel } from '../components/study/StudyMaterialPanel';
 
-// Viewers (lazy via dynamic import pattern – same sync imports for now)
+// Viewers
 import { PdfViewer } from '../components/viewers/PdfViewer';
 import { DocxViewer } from '../components/viewers/DocxViewer';
 import { XlsxViewer } from '../components/viewers/XlsxViewer';
@@ -134,7 +138,7 @@ function FileInfoSidebar({ file, onDownload, onDelete }: SidebarProps) {
       </div>
 
       {/* Metadata */}
-      <div className="p-6 flex flex-col gap-5 flex-1">
+      <div className="p-6 flex flex-col gap-5">
         {[
           { label: 'Extension', value: `.${file.extension.toUpperCase()}` },
           { label: 'Size', value: formatSize(file.size) },
@@ -149,8 +153,18 @@ function FileInfoSidebar({ file, onDownload, onDelete }: SidebarProps) {
         ))}
       </div>
 
+      {/* Processing Panel — Phase 2 */}
+      <ProcessingPanel
+        fileId={file.id}
+        category={file.category}
+        extension={file.extension}
+      />
+
+      {/* Study Material Panel — Phase 3 */}
+      <StudyMaterialPanel fileId={file.id} />
+
       {/* Actions */}
-      <div className="p-6 border-t border-gray-100 flex flex-col gap-3">
+      <div className="p-6 border-t border-gray-100 flex flex-col gap-3 mt-auto">
         <Button onClick={onDownload} className="w-full justify-center">
           <Download className="w-4 h-4 mr-2" /> Download
         </Button>
@@ -172,6 +186,8 @@ export default function FileViewerPage() {
   const { fileId } = useParams<{ fileId: string }>();
   const navigate = useNavigate();
   const { files, getFileBlob, getFileUrl, deleteFile, isLoaded } = useFiles();
+  const { clearRecord } = useProcessing();
+  const { clearMaterialsForFile } = useStudyMaterial();
 
   const [fileRecord, setFileRecord] = useState<FileRecord | null>(null);
   const [fileUrl, setFileUrl] = useState<string>('');
@@ -247,6 +263,8 @@ export default function FileViewerPage() {
     if (!fileRecord) return;
     if (window.confirm(`Are you sure you want to delete "${fileRecord.name}"?`)) {
       deleteFile(fileRecord.id);
+      clearRecord(fileRecord.id);
+      clearMaterialsForFile(fileRecord.id); // also remove study materials
       navigate('/dashboard');
     }
   };
