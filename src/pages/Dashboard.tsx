@@ -15,7 +15,6 @@ import {
   Files,
   MoreVertical,
   FolderOpen,
-  Edit2,
   Trash2,
   AlertCircle
 } from 'lucide-react';
@@ -46,34 +45,28 @@ const stats = [
   { label: 'Study Hours', value: 350, suffix: '+', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
 ];
 
-const initialPdfs = [
-  { id: 1, name: 'Python Notes.pdf', date: '2 hours ago', progress: 100, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { id: 2, name: 'DBMS Unit 3.pdf', date: '5 hours ago', progress: 45, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { id: 3, name: 'Operating Systems.pdf', date: 'Yesterday', progress: 80, color: 'text-green-500', bg: 'bg-green-50' },
-  { id: 4, name: 'AI Assignment.pdf', date: '2 days ago', progress: 10, color: 'text-orange-500', bg: 'bg-orange-50' },
-  { id: 5, name: 'Machine Learning.pdf', date: '3 days ago', progress: 100, color: 'text-rose-500', bg: 'bg-rose-50' },
-];
-
 const recentActivity = [
-  { id: 1, action: 'Generated AI Summary', file: 'DBMS Unit 3.pdf', time: '10 mins ago', icon: FileText, color: 'text-green-500', bg: 'bg-green-50' },
-  { id: 2, action: 'Completed Quiz', file: 'Operating Systems.pdf', time: '1 hour ago', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { id: 3, action: 'Started AI Chat', file: 'Python Notes.pdf', time: '3 hours ago', icon: MessageSquare, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { id: 4, action: 'Uploaded PDF', file: 'AI Assignment.pdf', time: 'Yesterday', icon: UploadCloud, color: 'text-orange-500', bg: 'bg-orange-50' },
+  { id: 1, action: 'Welcome to StudyMate AI', file: 'Get started by uploading a file.', time: 'Just now', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
 ];
 
 import { FileManager } from '../components/dashboard/FileManager';
 import { FileViewerModal } from '../components/dashboard/FileViewerModal';
 import { useFiles, FileRecord } from '../context/FileContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
-  const [pdfs, setPdfs] = useState(initialPdfs);
   const [viewingFile, setViewingFile] = useState<FileRecord | null>(null);
   const { toast } = useToast();
-  const { files } = useFiles();
+  const { files, deleteFile } = useFiles();
+  const navigate = useNavigate();
 
-  const handleDelete = (id: number) => {
-    setPdfs(pdfs.filter(p => p.id !== id));
-    toast('PDF deleted successfully', 'success');
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteFile(id);
+      toast('File deleted successfully', 'success');
+    } catch (err) {
+      toast('Failed to delete file', 'error');
+    }
   };
 
   const handleUploadClick = () => {
@@ -243,7 +236,7 @@ export default function Dashboard() {
               {[
                 { name: 'Upload PDF', icon: UploadCloud, color: 'text-blue-600', bg: 'bg-blue-50' },
                 { name: 'AI Summary', icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
-                { name: 'AI Chat', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
+                { name: 'AI Chat', href: '/chat', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
                 { name: 'Generate Quiz', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
                 { name: 'Flashcards', icon: BrainCircuit, color: 'text-rose-600', bg: 'bg-rose-50' },
                 { name: 'Notes', icon: BookOpen, color: 'text-teal-600', bg: 'bg-teal-50' },
@@ -254,6 +247,8 @@ export default function Dashboard() {
                   onClick={() => {
                     if (action.name === 'Upload PDF') {
                       handleUploadClick();
+                    } else if (action.href) {
+                      navigate(action.href);
                     } else {
                       toast(`Quick action: ${action.name}`, 'info');
                     }
@@ -281,8 +276,8 @@ export default function Dashboard() {
             
             <div className="space-y-3">
               <AnimatePresence>
-                {pdfs.length > 0 ? (
-                  pdfs.map((pdf) => (
+                {files.length > 0 ? (
+                  files.slice(0, 5).map((pdf) => (
                     <motion.div 
                       key={pdf.id}
                       initial={{ opacity: 0, height: 0 }}
@@ -292,21 +287,29 @@ export default function Dashboard() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 overflow-hidden flex-1">
-                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", pdf.bg, pdf.color)}>
+                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500")}>
                             <FileText className="w-5 h-5" />
                           </div>
                           <div className="overflow-hidden flex-1">
-                            <p className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors cursor-pointer">{pdf.name}</p>
-                            <p className="text-xs text-text-secondary mt-0.5">{pdf.date}</p>
+                            <p 
+                              className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors cursor-pointer"
+                              onClick={() => setViewingFile(pdf)}
+                            >
+                              {pdf.name}
+                            </p>
+                            <p className="text-xs text-text-secondary mt-0.5">
+                              {new Date(pdf.uploadTime).toLocaleDateString()}
+                            </p>
                           </div>
                         </div>
                         
                         <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-1.5 text-text-secondary hover:text-primary rounded-md hover:bg-gray-100 focus-visible:opacity-100" title="Open">
+                          <button 
+                            onClick={() => setViewingFile(pdf)}
+                            className="p-1.5 text-text-secondary hover:text-primary rounded-md hover:bg-gray-100 focus-visible:opacity-100" 
+                            title="Open"
+                          >
                             <FolderOpen className="w-4 h-4" />
-                          </button>
-                          <button className="p-1.5 text-text-secondary hover:text-green-600 rounded-md hover:bg-gray-100 focus-visible:opacity-100" title="Rename">
-                            <Edit2 className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={() => handleDelete(pdf.id)}
@@ -323,16 +326,16 @@ export default function Dashboard() {
                         </button>
                       </div>
                       
-                      {/* Progress Bar */}
+                      {/* Progress Bar - Placeholder for Phase 2 */}
                       <div className="mt-4 flex items-center gap-3">
                         <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-primary rounded-full transition-all duration-500"
-                            style={{ width: `${pdf.progress}%` }}
+                            style={{ width: `0%` }}
                           />
                         </div>
                         <span className="text-[10px] font-bold text-text-secondary w-8 text-right">
-                          {pdf.progress}%
+                          0%
                         </span>
                       </div>
                     </motion.div>

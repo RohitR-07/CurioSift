@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import FileViewerPage from './pages/FileViewerPage';
 import StudyWorkspacePage from './pages/StudyWorkspacePage';
+import AIAssistant from './pages/AIAssistant';
 
 import { ToastProvider } from './context/ToastContext';
 import { FileProvider } from './context/FileContext';
@@ -42,7 +43,7 @@ function App() {
                 <Route path="/summary" element={<div className="p-8">AI Summary Placeholder</div>} />
                 <Route path="/explain" element={<div className="p-8">AI Explain Placeholder</div>} />
                 <Route path="/questions" element={<div className="p-8">Question Generator Placeholder</div>} />
-                <Route path="/chat" element={<div className="p-8">AI Chat Placeholder</div>} />
+                <Route path="/chat" element={<AIAssistant />} />
                 <Route path="/flashcards" element={<div className="p-8">Flashcards Placeholder</div>} />
                 <Route path="/quiz" element={<div className="p-8">Quiz Generator Placeholder</div>} />
                 <Route path="/notes" element={<div className="p-8">Revision Notes Placeholder</div>} />
