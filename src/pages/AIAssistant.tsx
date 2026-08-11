@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { AlertTriangle, Book, BrainCircuit } from 'lucide-react';
+import { AlertTriangle, Book, BrainCircuit, Trash2, RefreshCw } from 'lucide-react';
 import { useFiles } from '../context/FileContext';
+import { useAIChat } from '../hooks/useAIChat';
 
 import { MaterialSidebar } from '../components/ai-assistant/MaterialSidebar';
 import { ChatMessage } from '../components/ai-assistant/ChatMessage';
@@ -8,17 +9,21 @@ import { ChatInput } from '../components/ai-assistant/ChatInput';
 import { ChatEmptyState } from '../components/ai-assistant/ChatEmptyState';
 import { TypingIndicator } from '../components/ai-assistant/TypingIndicator';
 
-import type { ChatMessage as ChatMessageType } from '../types/chat';
-
 export default function AIAssistant() {
   const { files, isLoaded } = useFiles();
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   
-  // State for messages per file
-  // In a real app this might be persisted, but Phase 1 uses mock memory state
-  const [messagesMap, setMessagesMap] = useState<Record<string, ChatMessageType[]>>({});
-  const [isTyping, setIsTyping] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const {
+    messagesMap,
+    isTyping: isTypingMap,
+    errorMap,
+    sendMessage,
+    retry,
+    clearChat
+  } = useAIChat();
+
+  const isTyping = selectedFileId ? !!isTypingMap[selectedFileId] : false;
+  const apiError = selectedFileId ? errorMap[selectedFileId] : null;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -39,46 +44,29 @@ export default function AIAssistant() {
   const selectedFile = files.find((f) => f.id === selectedFileId);
   const currentMessages = selectedFileId ? messagesMap[selectedFileId] || [] : [];
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = (text: string) => {
     if (!selectedFileId) return;
-
-    // 1. Add user message
-    const userMsg: ChatMessageType = {
-      id: `${Date.now()}-${Math.random().toString(36).substring(2)}`,
-      role: 'user',
-      content: text,
-      timestamp: Date.now(),
+    
+    const context = {
+      documentId: selectedFile?.id,
+      documentName: selectedFile?.name,
     };
+    
+    sendMessage(selectedFileId, text, context);
+  };
 
-    setMessagesMap((prev) => ({
-      ...prev,
-      [selectedFileId]: [...(prev[selectedFileId] || []), userMsg],
-    }));
+  const handleRetry = () => {
+    if (!selectedFileId) return;
+    const context = {
+      documentId: selectedFile?.id,
+      documentName: selectedFile?.name,
+    };
+    retry(selectedFileId, context);
+  };
 
-    setApiError(null);
-    setIsTyping(true);
-
-    // 2. Mock API delay
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // 3. Add AI mock response
-      const aiMsg: ChatMessageType = {
-        id: `${Date.now()}-${Math.random().toString(36).substring(2)}`,
-        role: 'assistant',
-        content: `Based on your selected study material, here's a helpful explanation of the concept you asked about.\n\nThis is currently a mock response for Module 6 Phase 1. Real AI integration will be added in a later phase.`,
-        timestamp: Date.now(),
-      };
-
-      setMessagesMap((prev) => ({
-        ...prev,
-        [selectedFileId]: [...(prev[selectedFileId] || []), aiMsg],
-      }));
-    } catch (err) {
-      setApiError('Something went wrong generating the AI response. Please try again.');
-    } finally {
-      setIsTyping(false);
-    }
+  const handleClearChat = () => {
+    if (!selectedFileId) return;
+    clearChat(selectedFileId);
   };
 
   // ── No files uploaded state ────────────────────────────────────────────────
@@ -110,16 +98,29 @@ export default function AIAssistant() {
       {/* ── Main Chat Area ────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 h-full relative">
         {/* Header */}
-        <header className="shrink-0 h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-3 z-10">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
-            <BrainCircuit className="w-4 h-4 text-primary" />
+        <header className="shrink-0 h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-3 z-10 justify-between">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+              <BrainCircuit className="w-4 h-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-text truncate">AI Study Assistant</h1>
+              <p className="text-[10px] uppercase tracking-widest text-text-secondary font-semibold truncate">
+                {selectedFile ? selectedFile.name : 'Ask questions about your study material'}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-sm font-bold text-text truncate">AI Study Assistant</h1>
-            <p className="text-[10px] uppercase tracking-widest text-text-secondary font-semibold truncate">
-              {selectedFile ? selectedFile.name : 'Ask questions about your study material'}
-            </p>
-          </div>
+          
+          {selectedFile && currentMessages.length > 0 && (
+            <button 
+              onClick={handleClearChat}
+              className="p-2 text-text-secondary hover:text-danger rounded-lg hover:bg-red-50 transition-colors shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              title="Clear Conversation"
+              aria-label="Clear Conversation"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </header>
 
         {/* Chat Output Area */}
@@ -142,9 +143,18 @@ export default function AIAssistant() {
               )}
 
               {apiError && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 self-center">
-                  <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-                  <p className="text-sm font-medium text-red-800">{apiError}</p>
+                <div className="flex flex-col items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200 self-center">
+                  <div className="flex items-center gap-2 text-red-800">
+                    <AlertTriangle className="w-5 h-5 shrink-0" />
+                    <p className="text-sm font-medium">{apiError}</p>
+                  </div>
+                  <button 
+                    onClick={handleRetry}
+                    className="flex items-center gap-2 px-4 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Try Again
+                  </button>
                 </div>
               )}
               
@@ -160,7 +170,7 @@ export default function AIAssistant() {
             <ChatInput onSend={handleSendMessage} disabled={isTyping || !selectedFileId} />
             <div className="text-center mt-2">
               <p className="text-[10px] text-text-secondary">
-                AI Assistant uses mock responses for Module 6 Phase 1.
+                StudyMate AI can make mistakes. Consider verifying important information.
               </p>
             </div>
           </div>
