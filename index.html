@@ -3,11 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyMate AI - Your Personal AI Study Companion</title>
-    <!-- Inter Font -->
+    <title>CurioSift - Turn dense textbooks into instant study guides</title>
+    <!-- Inter Font — larger weights for improved readability -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Dark mode: apply before React renders to prevent flash -->
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('curio-theme');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

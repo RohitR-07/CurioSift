@@ -8,7 +8,7 @@ const testimonials = [
     college: 'Stanford University',
     avatar: 'SJ',
     color: 'from-pink-500 to-rose-500',
-    review: 'StudyMate AI completely changed how I prep for finals. The AI summaries condense 100-page readings into 5 pages of pure gold.',
+    review: 'CurioSift completely changed how I prep for finals. The AI summaries condense 100-page readings into 5 pages of pure gold.',
     rating: 5
   },
   {
@@ -24,7 +24,7 @@ const testimonials = [
     college: 'UC Berkeley',
     avatar: 'ER',
     color: 'from-purple-500 to-indigo-500',
-    review: 'I used to spend hours making flashcards. Now I just drop my lecture slides in, and StudyMate does it for me instantly.',
+    review: 'I used to spend hours making flashcards. Now I just drop my lecture slides in, and CurioSift does it for me instantly.',
     rating: 5
   }
 ];

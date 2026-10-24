@@ -9,7 +9,7 @@ const faqs = [
     answer: 'Yes! You can upload multiple PDFs and organize them into different folders or subjects in your dashboard.'
   },
   {
-    question: 'Is StudyMate AI free?',
+    question: 'Is CurioSift free?',
     answer: 'We offer a generous free tier that includes 5 PDF uploads and 50 AI queries per month. For heavy users, we have a Pro plan with unlimited access.'
   },
   {
@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     question: 'Does AI answer my questions accurately?',
-    answer: 'StudyMate AI is explicitly instructed to search only within the context of the documents you upload, minimizing hallucinations and ensuring high accuracy.'
+    answer: 'CurioSift is explicitly instructed to search only within the context of the documents you upload, minimizing hallucinations and ensuring high accuracy.'
   }
 ];
 

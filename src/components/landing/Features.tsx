@@ -44,7 +44,7 @@ export default function Features() {
             Everything you need to master your subjects.
           </h3>
           <p className="text-lg text-text-secondary">
-            StudyMate AI brings the power of advanced language models directly to your course materials.
+            CurioSift brings the power of advanced language models directly to your course materials.
           </p>
         </div>
 

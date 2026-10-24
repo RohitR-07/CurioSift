@@ -3,13 +3,222 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: 248 250 252;          /* #F8FAFC */
+    --color-card: 255 255 255;        /* #FFFFFF */
+    --color-border: 226 232 240;      /* #E2E8F0 */
+    --color-text: 15 23 42;           /* #0F172A */
+    --color-text-secondary: 100 116 139; /* #64748B */
+  }
+
+  html.dark {
+    --color-bg: 11 15 25;             /* #0B0F19 deep slate */
+    --color-card: 17 24 39;           /* #111827 dark card surface */
+    --color-border: 31 41 55;         /* #1F2937 dark border */
+    --color-text: 249 250 251;        /* #F9FAFB bright readable text */
+    --color-text-secondary: 156 163 175; /* #9CA3AF soft high-contrast gray */
+    color-scheme: dark;
+  }
+
+  /* Base font size for clean, professional readability */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-text font-sans antialiased;
+    line-height: 1.6;
+    letter-spacing: -0.011em;
+  }
+
+  /* ── Custom Sleek Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.6);
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.35);
+  }
+
+  /* ── Global Dark Mode Styling ── */
+  html.dark body {
+    background-color: #0B0F19 !important;
+    color: #F9FAFB !important;
+  }
+
+  /* Surfaces & Containers */
+  html.dark .bg-white {
+    background-color: #111827 !important;
+  }
+  html.dark .bg-white\/80 {
+    background-color: rgba(17, 24, 39, 0.85) !important;
+  }
+  html.dark .bg-white\/70 {
+    background-color: rgba(17, 24, 39, 0.75) !important;
+  }
+  html.dark .bg-white\/60 {
+    background-color: rgba(17, 24, 39, 0.65) !important;
+  }
+  html.dark .bg-white\/50 {
+    background-color: rgba(17, 24, 39, 0.55) !important;
+  }
+  html.dark .bg-card {
+    background-color: #111827 !important;
+  }
+  html.dark .bg-background {
+    background-color: #0B0F19 !important;
+  }
+
+  /* Neutrals & Sub-surfaces */
+  html.dark .bg-gray-50 {
+    background-color: #161F30 !important;
+  }
+  html.dark .bg-gray-50\/50 {
+    background-color: rgba(22, 31, 48, 0.5) !important;
+  }
+  html.dark .bg-gray-100 {
+    background-color: #1E293B !important;
+  }
+  html.dark .bg-gray-200 {
+    background-color: #27354E !important;
+  }
+
+  /* Hover States */
+  html.dark .hover\:bg-gray-50:hover {
+    background-color: #161F30 !important;
+  }
+  html.dark .hover\:bg-gray-100:hover {
+    background-color: #1E293B !important;
+  }
+  html.dark .hover\:bg-gray-200:hover {
+    background-color: #27354E !important;
+  }
+  html.dark .hover\:border-gray-300:hover {
+    border-color: #3B4B68 !important;
+  }
+
+  /* Borders & Dividers */
+  html.dark .border-border {
+    border-color: #1F2937 !important;
+  }
+  html.dark .border-gray-100,
+  html.dark .border-gray-200,
+  html.dark .border-gray-300 {
+    border-color: #25334A !important;
+  }
+  html.dark .divide-border > :not([hidden]) ~ :not([hidden]) {
+    border-color: #1F2937 !important;
+  }
+
+  /* Text High Contrast */
+  html.dark .text-text {
+    color: #F9FAFB !important;
+  }
+  html.dark .text-text-secondary {
+    color: #9CA3AF !important;
+  }
+  html.dark .text-gray-900,
+  html.dark .text-gray-800,
+  html.dark .text-gray-700 {
+    color: #F3F4F6 !important;
+  }
+  html.dark .text-gray-600,
+  html.dark .text-gray-500 {
+    color: #9CA3AF !important;
+  }
+
+  /* Form Elements: Inputs, Textareas, Selects */
+  html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  html.dark textarea,
+  html.dark select {
+    background-color: #161F30 !important;
+    color: #F9FAFB !important;
+    border-color: #25334A !important;
+  }
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748B !important;
+  }
+  html.dark select option {
+    background-color: #111827 !important;
+    color: #F9FAFB !important;
+  }
+
+  /* Modals, Dialogs, Popovers */
+  html.dark [role="dialog"] {
+    background-color: #111827 !important;
+    color: #F9FAFB !important;
+    border-color: #1F2937 !important;
+  }
+
+  /* Keyboard shortcut tags */
+  html.dark kbd {
+    background-color: #1E293B !important;
+    color: #9CA3AF !important;
+    border-color: #25334A !important;
+  }
+
+  /* Muted Translucent Tinted Accent Badges in Dark Mode */
+  html.dark .bg-blue-50 {
+    background-color: rgba(37, 99, 235, 0.16) !important;
+    border-color: rgba(37, 99, 235, 0.3) !important;
+  }
+  html.dark .bg-purple-50 {
+    background-color: rgba(147, 51, 234, 0.16) !important;
+    border-color: rgba(147, 51, 234, 0.3) !important;
+  }
+  html.dark .bg-orange-50 {
+    background-color: rgba(249, 115, 22, 0.16) !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+  }
+  html.dark .bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.16) !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+  }
+  html.dark .bg-rose-50 {
+    background-color: rgba(244, 63, 94, 0.16) !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+  }
+  html.dark .bg-teal-50 {
+    background-color: rgba(20, 184, 166, 0.16) !important;
+    border-color: rgba(20, 184, 166, 0.3) !important;
+  }
+  html.dark .bg-amber-50 {
+    background-color: rgba(245, 158, 11, 0.16) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+  }
+  html.dark .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.16) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
   }
 }
 
 @layer utilities {
   .glass {
     @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+  html.dark .glass {
+    background-color: rgba(17, 24, 39, 0.75) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .glow-blue {
+    box-shadow: 0 0 35px -5px rgba(37, 99, 235, 0.25);
+  }
+  .glow-purple {
+    box-shadow: 0 0 35px -5px rgba(147, 51, 234, 0.25);
   }
 }

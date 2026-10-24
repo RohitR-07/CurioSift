@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: './server/.env' });
 
 // Initialize the Gemini client only if the key is available
 const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
@@ -43,7 +43,7 @@ export async function generateChatResponse(messages, context = null) {
 
   try {
     const chat = ai.chats.create({
-      model: 'gemini-2.5-flash',
+      model: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
       config: {
         systemInstruction,
         temperature: 0.7,
@@ -51,7 +51,22 @@ export async function generateChatResponse(messages, context = null) {
       history: history
     });
 
-    const response = await chat.sendMessage({ message: latestMessage.content });
+    let response;
+
+for (let attempt = 1; attempt <= 3; attempt++) {
+  try {
+    response = await chat.sendMessage({
+      message: latestMessage.content,
+    });
+    break;
+  } catch (error) {
+    if (error.status === 503 && attempt < 3) {
+      await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+    } else {
+      throw error;
+    }
+  }
+}
     return response.text;
   } catch (error) {
     console.error('Error in generateChatResponse:', error);

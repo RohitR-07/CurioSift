@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 const LogoSVG = () => (
   <svg width="40" height="40" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
@@ -20,27 +21,41 @@ const LogoSVG = () => (
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn, isConfigured } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Simple validation
   const isEmailValid = email.includes('@') && email.length > 3;
   const isPasswordValid = password.length >= 6;
   const isValid = isEmailValid && isPasswordValid;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-
+    setAuthError(null);
     setIsLoading(true);
-    // Simulate network request
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/dashboard');
-    }, 1200);
+
+    if (!isConfigured) {
+      // Supabase not configured — allow dev access without auth
+      navigate((location.state as any)?.from?.pathname ?? '/dashboard', { replace: true });
+      return;
+    }
+
+    const { error } = await signIn(email, password);
+    setIsLoading(false);
+
+    if (error) {
+      setAuthError(error.message ?? 'Sign-in failed. Please try again.');
+    } else {
+      const destination = (location.state as any)?.from?.pathname ?? '/dashboard';
+      navigate(destination, { replace: true });
+    }
   };
 
   return (
@@ -69,6 +84,13 @@ export default function Login() {
               Sign in to continue your learning journey
             </p>
           </div>
+
+          {authError && (
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm mb-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{authError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             {/* Email Input */}

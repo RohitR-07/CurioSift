@@ -2,10 +2,6 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
-  Files, 
-  FileText, 
-  Lightbulb, 
-  HelpCircle, 
   MessageSquare, 
   BrainCircuit, 
   GraduationCap, 
@@ -19,10 +15,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'My PDFs', href: '/pdfs', icon: Files },
-  { name: 'AI Summary', href: '/summary', icon: FileText },
-  { name: 'AI Explain', href: '/explain', icon: Lightbulb },
-  { name: 'Question Generator', href: '/questions', icon: HelpCircle },
   { name: 'AI Chat', href: '/chat', icon: MessageSquare, badge: 'NEW', badgeColor: 'bg-blue-500 text-white' },
   { name: 'Flashcards', href: '/flashcards', icon: BrainCircuit },
   { name: 'Quiz Generator', href: '/quiz', icon: GraduationCap, badge: 'BETA', badgeColor: 'bg-purple-100 text-purple-700' },
@@ -65,7 +57,7 @@ export default function Sidebar() {
               className="flex items-center gap-3 overflow-hidden whitespace-nowrap"
             >
               <LogoSVG />
-              <span className="font-bold tracking-tight text-xl text-text">StudyMate AI</span>
+              <span className="font-bold tracking-tight text-xl text-text">CurioSift</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -170,30 +162,6 @@ export default function Sidebar() {
         </NavLink>
       </div>
 
-      {/* User Mini Profile */}
-      <div className="p-4 border-t border-border mt-2">
-        <div className={cn(
-          "flex items-center gap-3 p-2 rounded-xl transition-all duration-200 cursor-pointer hover:bg-gray-50 group",
-          collapsed && "justify-center"
-        )}>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-100 to-purple-100 border border-border flex items-center justify-center shrink-0 shadow-inner group-hover:shadow-md transition-all">
-            <span className="text-primary font-bold text-sm">US</span>
-          </div>
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="overflow-hidden"
-              >
-                <p className="text-sm font-semibold text-text truncate">Student User</p>
-                <p className="text-xs text-text-secondary truncate font-medium">Free Plan</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
     </motion.aside>
   );
 }

@@ -51,7 +51,7 @@ export default function Navbar() {
         {/* Logo */}
         <a href="#home" className="flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
           <LogoSVG />
-          <span className="font-bold tracking-tight text-xl text-text">StudyMate AI</span>
+          <span className="font-bold tracking-tight text-xl text-text">CurioSift</span>
         </a>
 
         {/* Desktop Nav */}

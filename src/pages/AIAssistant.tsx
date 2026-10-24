@@ -170,7 +170,7 @@ export default function AIAssistant() {
             <ChatInput onSend={handleSendMessage} disabled={isTyping || !selectedFileId} />
             <div className="text-center mt-2">
               <p className="text-[10px] text-text-secondary">
-                StudyMate AI can make mistakes. Consider verifying important information.
+                CurioSift can make mistakes. Consider verifying important information.
               </p>
             </div>
           </div>

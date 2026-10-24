@@ -1,9 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, File, AlertCircle } from 'lucide-react';
+import { UploadCloud, File, Sparkles } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
 import { useFiles } from '../../context/FileContext';
 
 interface UploadAreaProps {
@@ -60,10 +58,10 @@ export function UploadArea({ onUpload }: UploadAreaProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "relative overflow-hidden border-2 border-dashed rounded-3xl p-10 sm:p-14 transition-all duration-300 ease-in-out flex flex-col items-center justify-center gap-5 text-center group bg-white cursor-pointer",
+          "relative overflow-hidden border-2 border-dashed rounded-3xl p-8 sm:p-12 transition-all duration-300 ease-in-out flex flex-col items-center justify-center gap-5 text-center group bg-white/60 backdrop-blur-sm cursor-pointer shadow-sm",
           isDragging 
-            ? 'border-primary bg-primary/[0.03] scale-[1.01] shadow-[0_0_40px_rgba(37,99,235,0.15)]' 
-            : 'border-border/80 hover:border-primary/40 hover:bg-gray-50/50 hover:shadow-lg hover:shadow-primary/5'
+            ? 'border-primary bg-primary/[0.04] scale-[1.01] shadow-[0_0_35px_rgba(37,99,235,0.18)]' 
+            : 'border-border/80 hover:border-primary/50 hover:bg-white hover:shadow-xl hover:shadow-primary/5'
         )}
       >
         <input 
@@ -75,53 +73,34 @@ export function UploadArea({ onUpload }: UploadAreaProps) {
           accept="*"
         />
 
-        {/* Large Upload Icon */}
+        {/* Upload Icon */}
         <div className={cn(
-          "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 mb-2 shadow-sm",
-          isDragging ? "bg-primary/10 scale-110" : "bg-blue-50 group-hover:scale-110 group-hover:bg-blue-100/50"
+          "w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-500 mb-1 shadow-sm border border-blue-100",
+          isDragging 
+            ? "bg-primary text-white scale-110 shadow-primary/30 shadow-lg" 
+            : "bg-gradient-to-tr from-blue-50 to-indigo-50 text-primary group-hover:scale-110 group-hover:shadow-md"
         )}>
-          <UploadCloud className={cn(
-            "w-12 h-12 transition-colors",
-            isDragging ? "text-primary" : "text-primary/70 group-hover:text-primary"
-          )} />
+          <UploadCloud className="w-10 h-10 transition-transform duration-300 group-hover:-translate-y-0.5" />
         </div>
         
         {/* Headings */}
-        <div className="space-y-1.5">
-          <h3 className="text-2xl font-extrabold text-text tracking-tight group-hover:text-primary transition-colors">
-            Upload Your Study Files
+        <div className="space-y-1.5 max-w-lg">
+          <h3 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight group-hover:text-primary transition-colors">
+            Upload Your Study Materials
           </h3>
-          <p className="text-text-secondary text-base max-w-md mx-auto font-medium">
-            Drag & drop files here or browse from your computer
+          <p className="text-text-secondary text-sm sm:text-base font-medium">
+            Drag & drop files here, or <span className="text-primary font-semibold underline decoration-primary/40 underline-offset-4">browse files</span>
           </p>
         </div>
 
-        {/* Browse Button */}
-        <div className="mt-2">
-          <Button 
-            type="button"
-            variant="primary" 
-            className="shadow-md shadow-primary/20 pointer-events-none"
-          >
-            Browse Files
-          </Button>
-        </div>
-
         {/* Badges / Support Text */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
-          <Badge variant="success" className="px-3 py-1.5 bg-green-50 text-green-700 font-semibold shadow-sm">
-            <File className="w-3.5 h-3.5 mr-1" /> Supports all file types
-          </Badge>
-          <Badge variant="warning" className="px-3 py-1.5 bg-amber-50 text-amber-700 font-semibold shadow-sm">
-            <AlertCircle className="w-3.5 h-3.5 mr-1" /> Large files supported
-          </Badge>
-        </div>
-
-        {/* File extensions hint */}
-        <div className="mt-2 text-xs font-semibold text-text-secondary/60 flex flex-wrap justify-center gap-1.5 max-w-lg">
-          {['PDF', 'DOCX', 'PPT', 'PPTX', 'TXT', 'CSV', 'XLSX', 'ZIP', 'RAR', 'JPG', 'PNG', 'MP4', 'MP3'].map((ext) => (
-            <span key={ext} className="bg-gray-100 px-2 py-0.5 rounded-md">{ext}</span>
-          ))}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> AI-Ready Instant Analysis
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60 shadow-xs">
+            <File className="w-3.5 h-3.5 text-blue-600" /> PDF, DOCX, TXT, Slides
+          </span>
         </div>
       </div>
     </motion.section>

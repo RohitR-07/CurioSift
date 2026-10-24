@@ -17,7 +17,7 @@ export function StatCard({ label, value, suffix = '', icon: Icon, colorClass, bg
 
   useEffect(() => {
     let startTime: number;
-    const duration = 1500;
+    const duration = 1200;
     
     const animate = (time: number) => {
       if (!startTime) startTime = time;
@@ -31,16 +31,20 @@ export function StatCard({ label, value, suffix = '', icon: Icon, colorClass, bg
   }, [value]);
 
   return (
-    <Card hoverable className="group">
-      <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-        <div className={cn("p-3.5 rounded-2xl shadow-sm transition-transform group-hover:scale-110", bgClass)}>
-          <Icon className={cn("w-6 h-6", colorClass)} />
-        </div>
-        <div>
+    <Card hoverable className="group relative overflow-hidden">
+      {/* Subtle top border highlight */}
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <CardContent className="p-6 flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+            {label}
+          </p>
           <p className="text-3xl font-extrabold text-text tracking-tight flex items-baseline">
             {count}{suffix}
           </p>
-          <p className="text-sm font-semibold text-text-secondary mt-0.5">{label}</p>
+        </div>
+        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shadow-sm shrink-0 transition-transform duration-300 group-hover:scale-110", bgClass)}>
+          <Icon className={cn("w-6 h-6", colorClass)} />
         </div>
       </CardContent>
     </Card>

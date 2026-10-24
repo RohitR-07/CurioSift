@@ -100,8 +100,6 @@ export function FileManager() {
     { id: 'pdf', label: 'PDFs' },
     { id: 'document', label: 'Docs' },
     { id: 'image', label: 'Images' },
-    { id: 'video', label: 'Videos' },
-    { id: 'audio', label: 'Audio' },
     { id: 'code', label: 'Code' },
     { id: 'spreadsheet', label: 'Sheets' },
     { id: 'presentation', label: 'Slides' }

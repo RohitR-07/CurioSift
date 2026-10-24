@@ -9,7 +9,7 @@ interface SectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 export function SectionHeader({ title, action, className, ...props }: SectionHeaderProps) {
   return (
     <div className={cn("flex items-center justify-between mb-4", className)} {...props}>
-      <h2 className="text-xl md:text-2xl font-bold text-text tracking-tight">{title}</h2>
+      <h2 className="text-lg sm:text-xl font-extrabold text-text tracking-tight">{title}</h2>
       {action && (
         <div className="flex-shrink-0">
           {action}

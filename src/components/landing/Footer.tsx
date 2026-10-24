@@ -19,10 +19,10 @@ export default function Footer() {
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="font-bold tracking-tight text-xl text-text">StudyMate AI</span>
+                <span className="font-bold tracking-tight text-xl text-text">CurioSift</span>
              </div>
              <p className="text-text-secondary max-w-sm mb-6 font-medium">
-               Your personal AI study companion. Upload materials, generate notes, and learn faster.
+               Turn dense textbooks into instant study guides. Upload materials, generate notes, and learn faster.
              </p>
              <div className="flex gap-4">
                <a href="#" className="text-gray-400 hover:text-primary transition-colors">
@@ -59,7 +59,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-text-secondary font-medium">
-            © {new Date().getFullYear()} StudyMate AI. All rights reserved.
+            © {new Date().getFullYear()} CurioSift. All rights reserved.
           </p>
         </div>
 

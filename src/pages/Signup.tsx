@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
 
 const LogoSVG = () => (
   <svg width="40" height="40" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
@@ -20,6 +21,7 @@ const LogoSVG = () => (
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { signUp, isConfigured } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +30,8 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [signedUp, setSignedUp] = useState(false);
 
   // Validation
   const isNameValid = name.trim().length > 1;
@@ -37,16 +41,28 @@ export default function Signup() {
   
   const isValid = isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && agreeTerms;
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-
+    setAuthError(null);
     setIsLoading(true);
-    // Simulate network request
-    setTimeout(() => {
-      setIsLoading(false);
+
+    if (!isConfigured) {
+      // Supabase not configured — allow dev access without auth
       navigate('/dashboard');
-    }, 1200);
+      return;
+    }
+
+    const { error } = await signUp(email, password, name.trim());
+    setIsLoading(false);
+
+    if (error) {
+      setAuthError(error.message ?? 'Sign-up failed. Please try again.');
+    } else {
+      // Supabase sends a confirmation email by default.
+      // Show a success message instead of navigating directly.
+      setSignedUp(true);
+    }
   };
 
   return (
@@ -75,6 +91,33 @@ export default function Signup() {
               Start your AI-powered learning journey
             </p>
           </div>
+
+          {/* Success screen — shown after successful sign-up */}
+          {signedUp ? (
+            <div className="flex flex-col items-center text-center gap-4 py-4">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-green-500" />
+              </div>
+              <h2 className="text-xl font-bold text-text">Check your inbox!</h2>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                We've sent a confirmation link to <strong>{email}</strong>.<br />
+                Click the link to activate your account, then sign in.
+              </p>
+              <NavLink
+                to="/login"
+                className="mt-2 text-primary font-semibold hover:underline text-sm"
+              >
+                Go to Sign In →
+              </NavLink>
+            </div>
+          ) : (
+            <>
+          {authError && (
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm mb-4">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{authError}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSignup} className="space-y-4">
             
@@ -226,6 +269,8 @@ export default function Signup() {
               Sign In
             </NavLink>
           </div>
+          </>
+          )}
           
         </div>
       </motion.div>

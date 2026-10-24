@@ -1,73 +1,45 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   UploadCloud, 
-  FileText, 
-  Lightbulb, 
-  HelpCircle, 
   MessageSquare, 
   BrainCircuit, 
   GraduationCap, 
   BookOpen, 
-  BarChart3,
   Clock,
-  Play,
   Files,
-  MoreVertical,
-  FolderOpen,
-  Trash2,
-  AlertCircle
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { SectionHeader } from '../components/ui/SectionHeader';
-import { EmptyState } from '../components/ui/EmptyState';
 import { StatCard } from '../components/ui/StatCard';
-import { FeatureCard } from '../components/ui/FeatureCard';
 import { UploadArea } from '../components/dashboard/UploadArea';
 import { cn } from '../utils/cn';
 import { useToast } from '../context/ToastContext';
-
-const features = [
-  { name: 'AI Summary', icon: FileText, color: 'from-blue-500 to-cyan-500', shadow: 'shadow-blue-500/20', desc: 'Condense long PDFs into key points instantly.', badge: 'POPULAR' },
-  { name: 'Explain Concepts', icon: Lightbulb, color: 'from-yellow-400 to-orange-500', shadow: 'shadow-orange-500/20', desc: 'Simplify complex topics into simple terms.' },
-  { name: 'Question Gen.', icon: HelpCircle, color: 'from-green-500 to-emerald-600', shadow: 'shadow-emerald-500/20', desc: 'Generate potential exam questions on the fly.' },
-  { name: 'AI Chat', icon: MessageSquare, color: 'from-purple-500 to-indigo-500', shadow: 'shadow-indigo-500/20', desc: 'Chat directly with your documents.', badge: 'NEW' },
-  { name: 'Flashcards', icon: BrainCircuit, color: 'from-pink-500 to-rose-500', shadow: 'shadow-rose-500/20', desc: 'Auto-generate study flashcards.' },
-  { name: 'Quiz Generator', icon: GraduationCap, color: 'from-violet-500 to-purple-600', shadow: 'shadow-violet-500/20', desc: 'Test your knowledge with interactive quizzes.', badge: 'BETA' },
-  { name: 'Revision Notes', icon: BookOpen, color: 'from-orange-400 to-red-500', shadow: 'shadow-red-500/20', desc: 'Create structured revision notes automatically.' },
-  { name: 'Analytics', icon: BarChart3, color: 'from-teal-400 to-emerald-500', shadow: 'shadow-teal-500/20', desc: 'Track your study progress and habits.' },
-];
-
-const stats = [
-  { label: 'Files Uploaded', value: 42, suffix: '', icon: Files, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { label: 'AI Summaries', value: 128, suffix: '', icon: FileText, color: 'text-green-500', bg: 'bg-green-50' },
-  { label: 'Quizzes Completed', value: 24, suffix: '', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { label: 'Study Hours', value: 350, suffix: '+', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
-];
-
-const recentActivity = [
-  { id: 1, action: 'Welcome to StudyMate AI', file: 'Get started by uploading a file.', time: 'Just now', icon: GraduationCap, color: 'text-purple-500', bg: 'bg-purple-50' },
-];
 
 import { FileManager } from '../components/dashboard/FileManager';
 import { FileViewerModal } from '../components/dashboard/FileViewerModal';
 import { useFiles, FileRecord } from '../context/FileContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getQuizStats } from '../services/dbApi';
 
 export default function Dashboard() {
   const [viewingFile, setViewingFile] = useState<FileRecord | null>(null);
   const { toast } = useToast();
-  const { files, deleteFile } = useFiles();
+  const { files } = useFiles();
   const navigate = useNavigate();
+  const { displayName, getAuthHeader, isConfigured } = useAuth();
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteFile(id);
-      toast('File deleted successfully', 'success');
-    } catch (err) {
-      toast('Failed to delete file', 'error');
-    }
-  };
+  const [quizStats, setQuizStats] = useState<{ totalAttempts: number; avgScore: number } | null>(null);
+
+  useEffect(() => {
+    if (!isConfigured) return;
+    getQuizStats(getAuthHeader).then((s) => {
+      if (!s.error) setQuizStats(s);
+    });
+  }, [isConfigured, getAuthHeader]);
 
   const handleUploadClick = () => {
     document.getElementById('upload-area-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -86,315 +58,182 @@ export default function Dashboard() {
   const hasPrev = viewingIndex > 0;
   const hasNext = viewingIndex >= 0 && viewingIndex < files.length - 1;
 
+  // Quick Actions — each one navigates to its real, working page
+  const quickActions = [
+    { 
+      name: 'Upload PDF', 
+      desc: 'Add study files',
+      icon: UploadCloud, 
+      gradient: 'from-blue-500 to-cyan-500', 
+      shadow: 'shadow-blue-500/25', 
+      action: () => handleUploadClick() 
+    },
+    { 
+      name: 'AI Chat', 
+      desc: 'Ask your docs',
+      icon: MessageSquare, 
+      gradient: 'from-purple-500 to-indigo-500', 
+      shadow: 'shadow-indigo-500/25', 
+      action: () => navigate('/chat') 
+    },
+    { 
+      name: 'Generate Quiz', 
+      desc: 'Test knowledge',
+      icon: GraduationCap, 
+      gradient: 'from-violet-500 to-purple-600', 
+      shadow: 'shadow-violet-500/25', 
+      action: () => navigate('/quiz') 
+    },
+    { 
+      name: 'Flashcards', 
+      desc: 'Spaced repetition',
+      icon: BrainCircuit, 
+      gradient: 'from-pink-500 to-rose-500', 
+      shadow: 'shadow-rose-500/25', 
+      action: () => navigate('/flashcards') 
+    },
+    { 
+      name: 'Revision Notes', 
+      desc: 'Instant summaries',
+      icon: BookOpen, 
+      gradient: 'from-amber-500 to-orange-500', 
+      shadow: 'shadow-orange-500/25', 
+      action: () => navigate('/notes') 
+    },
+  ];
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-12">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-10">
       
-      {/* Welcome Section */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2">
+      {/* Welcome Bar */}
+      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-text tracking-tight">
-            Welcome back, Deepak 👋
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">
+            Welcome back, {displayName} 👋
           </h1>
-          <p className="text-text-secondary font-medium">
+          <p className="text-xs sm:text-sm text-text-secondary font-medium">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        <div className="bg-primary/5 border border-primary/10 px-4 py-2 rounded-xl">
-          <p className="text-sm font-semibold text-primary">
-            "Success is the sum of small efforts, repeated day in and day out."
-          </p>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/[0.06] border border-primary/15 text-primary text-xs font-semibold self-start sm:self-auto">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          <span>CurioSift AI Study Suite</span>
         </div>
       </section>
 
-      {/* Premium Hero Section */}
-      <section className="flex flex-col lg:flex-row items-center justify-between gap-12 pt-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="max-w-2xl space-y-6 flex-1"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-semibold tracking-wide mb-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            StudyMate AI v1.0
-          </div>
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-text tracking-tight leading-[1.1]">
-            Study Smarter. <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              Not Harder.
-            </span>
-          </h1>
-          <p className="text-lg text-text-secondary leading-relaxed max-w-xl">
-            Upload your PDFs and let AI summarize, explain concepts, generate exam questions, create quizzes, and help you study faster.
-          </p>
-          <div className="flex flex-wrap items-center gap-4 pt-4">
-            <Button size="lg" className="font-bold shadow-blue-500/25" onClick={handleUploadClick}>
-              <UploadCloud className="w-5 h-5" />
-              Upload PDF
-            </Button>
-            <Button variant="secondary" size="lg" className="font-semibold bg-white border border-border shadow-sm hover:border-gray-300">
-              <Play className="w-4 h-4 fill-current" />
-              Watch Demo
-            </Button>
-          </div>
-        </motion.div>
+      {/* Premium Hero Card */}
+      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-white via-white to-blue-50/40 p-8 sm:p-12 shadow-sm">
+        {/* Ambient background glow circles */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-400/10 via-purple-400/10 to-transparent rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-full blur-2xl pointer-events-none" />
 
-        {/* Hero SVG Illustration */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, type: 'spring' }}
-          className="hidden lg:flex w-96 h-96 relative items-center justify-center shrink-0"
-        >
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-100 rounded-[3rem] rotate-3 scale-105 opacity-50 blur-3xl"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-purple-50 rounded-[3rem] border-2 border-white shadow-2xl overflow-hidden flex items-center justify-center">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-             <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-200/50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-             
-             <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative z-10 drop-shadow-lg">
-                <rect x="60" y="40" width="80" height="100" rx="8" fill="white" stroke="#E2E8F0" strokeWidth="4"/>
-                <path d="M75 60H125M75 80H125M75 100H105" stroke="#CBD5E1" strokeWidth="4" strokeLinecap="round"/>
-                <circle cx="140" cy="120" r="40" fill="url(#paint0_linear_1)" />
-                <path d="M125 120C125 111.716 131.716 105 140 105C148.284 105 155 111.716 155 120C155 128.284 148.284 135 140 135C131.716 135 125 128.284 125 120ZM125 120H115M140 105V95M155 120H165M140 135V145" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-                <circle cx="140" cy="120" r="15" fill="white"/>
-                <circle cx="140" cy="120" r="6" fill="url(#paint0_linear_1)"/>
-                <path d="M40 80L45 95L60 100L45 105L40 120L35 105L20 100L35 95L40 80Z" fill="#FDE047"/>
-                <path d="M160 50L163 60L173 63L163 66L160 76L157 66L147 63L157 60L160 50Z" fill="#A78BFA"/>
-                <defs>
-                  <linearGradient id="paint0_linear_1" x1="100" y1="80" x2="180" y2="160" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#3B82F6" />
-                    <stop offset="1" stopColor="#9333EA" />
-                  </linearGradient>
-                </defs>
-              </svg>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-bold tracking-wide">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+              </span>
+              CurioSift AI v1.0
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-text tracking-tight leading-[1.15]">
+              Turn dense textbooks into <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+                instant study guides.
+              </span>
+            </h2>
+
+            <p className="text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl font-medium">
+              Upload your lecture slides or textbooks and let AI create quizzes, flashcards, revision notes, and chat answers in seconds.
+            </p>
+
+            <div className="pt-2">
+              <Button size="lg" className="shadow-lg shadow-primary/20 gap-2 font-bold" onClick={handleUploadClick}>
+                <UploadCloud className="w-5 h-5" />
+                <span>Upload PDF Document</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-        </motion.div>
+
+          {/* Quick Stats Pill Panel */}
+          <div className="grid grid-cols-2 gap-3 shrink-0 lg:w-80">
+            <div className="p-4 rounded-2xl bg-white/80 border border-border/80 backdrop-blur-sm shadow-xs space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">Study Files</p>
+              <p className="text-2xl font-black text-text">{files.length}</p>
+              <p className="text-[11px] text-text-secondary">Ready in library</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-white/80 border border-border/80 backdrop-blur-sm shadow-xs space-y-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">Quizzes</p>
+              <p className="text-2xl font-black text-primary">{quizStats?.totalAttempts ?? 0}</p>
+              <p className="text-[11px] text-text-secondary">Completed</p>
+            </div>
+            <div className="col-span-2 p-4 rounded-2xl bg-white/80 border border-border/80 backdrop-blur-sm shadow-xs flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">Average Score</p>
+                <p className="text-xl font-black text-emerald-600">{quizStats?.avgScore ?? 0}%</p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                ✓
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Redesigned Upload Section */}
+      {/* Redesigned Upload Dropzone Section */}
       <div id="upload-area-section" className="scroll-mt-24">
         <UploadArea onUpload={(files) => toast(`Selected ${files?.length} files for upload`, 'success')} />
       </div>
 
-      {/* Premium Statistics using reusable StatCard */}
+      {/* Statistics Cards */}
       <motion.section 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+        transition={{ delay: 0.15 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6"
       >
-        {stats.map((stat, i) => (
-          <StatCard 
-            key={i}
-            label={stat.label}
-            value={stat.value}
-            suffix={stat.suffix}
-            icon={stat.icon}
-            colorClass={stat.color}
-            bgClass={stat.bg}
-          />
-        ))}
+        <StatCard label="Files Uploaded" value={files.length} suffix="" icon={Files} colorClass="text-blue-500" bgClass="bg-blue-50" />
+        <StatCard label="Quizzes Completed" value={quizStats?.totalAttempts ?? 0} suffix="" icon={GraduationCap} colorClass="text-purple-500" bgClass="bg-purple-50" />
+        <StatCard label="Avg Quiz Score" value={quizStats?.avgScore ?? 0} suffix="%" icon={Clock} colorClass="text-orange-500" bgClass="bg-orange-50" />
       </motion.section>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        
-        {/* Improved Feature Grid using reusable FeatureCard and SectionHeader */}
-        <div className="lg:col-span-2 space-y-6">
-          <SectionHeader title="Explore Features" />
-          <div className="grid sm:grid-cols-2 gap-5">
-            {features.map((feature, i) => (
-              <motion.div
-                key={feature.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * i }}
-                className="h-full"
-              >
-                <FeatureCard 
-                  title={feature.name}
-                  description={feature.desc}
-                  icon={feature.icon}
-                  gradientClass={feature.color}
-                  shadowClass={feature.shadow}
-                  badge={feature.badge}
-                />
-              </motion.div>
-            ))}
-          </div>
+      {/* Quick Actions — modern SaaS grid */}
+      <section className="space-y-4">
+        <SectionHeader title="Quick Actions" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {quickActions.map((action, i) => (
+            <motion.button
+              key={action.name}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.04 * i }}
+              onClick={action.action}
+              className="relative overflow-hidden flex flex-col items-center justify-center gap-3 p-5 rounded-2xl bg-card border border-border/70 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary text-center"
+            >
+              <div className={cn(
+                "w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br transition-transform duration-300 group-hover:scale-110",
+                action.gradient, action.shadow,
+              )}>
+                <action.icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-sm font-bold text-text group-hover:text-primary transition-colors block leading-snug">
+                  {action.name}
+                </span>
+                <span className="text-[11px] text-text-secondary font-medium block">
+                  {action.desc}
+                </span>
+              </div>
+            </motion.button>
+          ))}
         </div>
-
-        {/* Right Sidebar (Recent + Quick Actions) */}
-        <div className="space-y-8">
-          
-          {/* Enhanced Quick Actions */}
-          <section className="space-y-4">
-            <SectionHeader title="Quick Actions" />
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { name: 'Upload PDF', icon: UploadCloud, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { name: 'AI Summary', icon: FileText, color: 'text-green-600', bg: 'bg-green-50' },
-                { name: 'AI Chat', href: '/chat', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
-                { name: 'Generate Quiz', icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
-                { name: 'Flashcards', icon: BrainCircuit, color: 'text-rose-600', bg: 'bg-rose-50' },
-                { name: 'Notes', icon: BookOpen, color: 'text-teal-600', bg: 'bg-teal-50' },
-              ].map((action, i) => (
-                <button 
-                  key={i} 
-                  className="flex flex-col items-center justify-center gap-3 p-5 rounded-2xl bg-white border border-border hover:border-primary hover:shadow-lg hover:shadow-primary/5 transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  onClick={() => {
-                    if (action.name === 'Upload PDF') {
-                      handleUploadClick();
-                    } else if (action.href) {
-                      navigate(action.href);
-                    } else {
-                      toast(`Quick action: ${action.name}`, 'info');
-                    }
-                  }}
-                >
-                  <div className={cn("p-3 rounded-full transition-transform duration-300 group-hover:scale-110", action.bg, action.color)}>
-                    <action.icon className="w-6 h-6" />
-                  </div>
-                  <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors">{action.name}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Upgraded Recent PDFs */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Recent PDFs" 
-              action={
-                <button className="text-sm font-semibold text-primary hover:text-blue-700 hover:underline focus-visible:outline-none focus-visible:underline">
-                  View All
-                </button>
-              } 
-            />
-            
-            <div className="space-y-3">
-              <AnimatePresence>
-                {files.length > 0 ? (
-                  files.slice(0, 5).map((pdf) => (
-                    <motion.div 
-                      key={pdf.id}
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                      className="p-4 rounded-2xl bg-white border border-border hover:border-gray-300 shadow-sm hover:shadow-md transition-all group overflow-hidden"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 overflow-hidden flex-1">
-                          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500")}>
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div className="overflow-hidden flex-1">
-                            <p 
-                              className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors cursor-pointer"
-                              onClick={() => setViewingFile(pdf)}
-                            >
-                              {pdf.name}
-                            </p>
-                            <p className="text-xs text-text-secondary mt-0.5">
-                              {new Date(pdf.uploadTime).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => setViewingFile(pdf)}
-                            className="p-1.5 text-text-secondary hover:text-primary rounded-md hover:bg-gray-100 focus-visible:opacity-100" 
-                            title="Open"
-                          >
-                            <FolderOpen className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(pdf.id)}
-                            className="p-1.5 text-text-secondary hover:text-danger rounded-md hover:bg-red-50 focus-visible:opacity-100" 
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                        
-                        {/* More options fallback for mobile */}
-                        <button className="lg:hidden p-1 text-text-secondary">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      </div>
-                      
-                      {/* Progress Bar - Placeholder for Phase 2 */}
-                      <div className="mt-4 flex items-center gap-3">
-                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary rounded-full transition-all duration-500"
-                            style={{ width: `0%` }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-bold text-text-secondary w-8 text-right">
-                          0%
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <EmptyState 
-                    icon={AlertCircle}
-                    title="No PDFs Uploaded Yet"
-                    description="Upload your first study material and unlock AI-powered learning."
-                    actionLabel="Upload PDF"
-                    onAction={handleUploadClick}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
-          </section>
-
-          {/* Recent AI Activity */}
-          <section className="space-y-4">
-            <SectionHeader 
-              title="Recent AI Activity" 
-              action={
-                <button className="text-sm font-semibold text-primary hover:text-blue-700 hover:underline focus-visible:outline-none focus-visible:underline">
-                  History
-                </button>
-              } 
-            />
-            
-            <div className="space-y-3">
-              {recentActivity.map((activity) => (
-                <div 
-                  key={activity.id}
-                  className="p-4 rounded-2xl bg-white border border-border shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow group"
-                >
-                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", activity.bg, activity.color)}>
-                    <activity.icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">
-                      {activity.action}
-                    </p>
-                    <p className="text-xs font-medium text-text-secondary truncate mt-0.5">
-                      {activity.file}
-                    </p>
-                  </div>
-                  <div className="text-[10px] font-semibold text-text-secondary bg-gray-50 px-2 py-1 rounded-md shrink-0">
-                    {activity.time}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-        </div>
-      </div>
+      </section>
 
       {/* File Management Center (Full Width) */}
-      <section className="pt-8 border-t border-border mt-8">
-        <div className="flex items-center justify-between mb-6">
+      <section className="pt-6 border-t border-border/80">
+        <div className="flex items-center justify-between mb-5">
           <SectionHeader title="File Management Center" />
         </div>
         <FileManager />
