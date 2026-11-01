@@ -22,18 +22,12 @@ const navigation = [
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 
-const LogoSVG = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-    <rect width="32" height="32" rx="8" fill="url(#paint0_linear)" />
-    <path d="M12 21H21C21.5523 21 22 20.5523 22 20V10C22 9.44772 21.5523 9 21 9H12C10.3431 9 9 10.3431 9 12V21H12ZM12 21V19M12 21C10.8954 21 10 20.1046 10 19V12C10 10.8954 10.8954 10 12 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15.5 13.5L16.5 11.5L17.5 13.5L19.5 14.5L17.5 15.5L16.5 17.5L15.5 15.5L13.5 14.5L15.5 13.5Z" fill="white" />
-    <defs>
-      <linearGradient id="paint0_linear" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#2563EB" />
-        <stop offset="1" stopColor="#9333EA" />
-      </linearGradient>
-    </defs>
-  </svg>
+const LogoMark = ({ className = "w-9 h-9" }: { className?: string }) => (
+  <img 
+    src="/curiosift-mark.png" 
+    alt="CurioSift" 
+    className={cn("object-contain shrink-0 drop-shadow-sm transition-transform duration-200 hover:scale-105", className)} 
+  />
 );
 
 export default function Sidebar() {
@@ -56,8 +50,15 @@ export default function Sidebar() {
               exit={{ opacity: 0, x: -20, transition: { duration: 0.1 } }}
               className="flex items-center gap-3 overflow-hidden whitespace-nowrap"
             >
-              <LogoSVG />
-              <span className="font-bold tracking-tight text-xl text-text">CurioSift</span>
+              <LogoMark className="w-9 h-9" />
+              <div className="flex flex-col leading-tight">
+                <span className="font-extrabold tracking-tight text-xl text-text">
+                  Curio<span className="text-primary">Sift</span>
+                </span>
+                <span className="text-[10px] text-text-secondary font-medium tracking-wide">
+                  AI STUDY SUITE
+                </span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -65,7 +66,7 @@ export default function Sidebar() {
         {/* If collapsed, show logo centered instead of empty space */}
         {collapsed && (
           <div className="mx-auto mt-2">
-            <LogoSVG />
+            <LogoMark className="w-9 h-9" />
           </div>
         )}
       </div>

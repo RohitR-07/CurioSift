@@ -45,8 +45,8 @@ interface ProcessingContextType {
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 const processingStore = localforage.createInstance({
-  name: 'StudyMateAI',
-  storeName: 'processing_store',
+  name: 'CurioSift_Processing',
+  storeName: 'records',
 });
 
 // ─── Context ──────────────────────────────────────────────────────────────────

@@ -52,38 +52,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let isMounted = true;
+
+    // Safety timeout: Ensure loading is dismissed even if network or Supabase is unresponsive
+    const safetyTimeout = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 3000);
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!isMounted) return;
+        setSession(session);
+        setUser(session?.user ?? null);
+      })
+      .catch((err) => {
+        console.warn('[AuthContext] Failed to get session:', err);
+      })
+      .finally(() => {
+        clearTimeout(safetyTimeout);
+        if (isMounted) setLoading(false);
+      });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimeout);
+      subscription.unsubscribe();
+    };
   }, [configured]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error && data?.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+      return { error };
+    } catch (err: any) {
+      console.error('[AuthContext] signIn error:', err);
+      return { error: err as AuthError };
+    }
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: displayName ?? email.split('@')[0] },
-      },
-    });
-    return { error };
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { display_name: displayName ?? email.split('@')[0] },
+        },
+      });
+      if (!error && data?.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+      return { error };
+    } catch (err: any) {
+      console.error('[AuthContext] signUp error:', err);
+      return { error: err as AuthError };
+    }
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('[AuthContext] signOut error:', err);
+    } finally {
+      setSession(null);
+      setUser(null);
+    }
   }, []);
 
   /** Returns an Authorization header for backend API calls. */

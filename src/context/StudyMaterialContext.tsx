@@ -27,8 +27,8 @@ import type {
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 const studyMaterialStore = localforage.createInstance({
-  name: 'StudyMateAI',
-  storeName: 'study_material_store',
+  name: 'CurioSift_StudyMaterial',
+  storeName: 'materials',
 });
 
 // ─── Context Type ─────────────────────────────────────────────────────────────

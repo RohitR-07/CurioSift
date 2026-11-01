@@ -11,7 +11,7 @@ import { EmptyState } from '../ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
 
 export function FileManager() {
-  const { files, deleteFile, getFileUrl } = useFiles();
+  const { files, deleteFile, getFileUrl, ensureFileUrl } = useFiles();
   const { toast } = useToast();
   const { getRecord } = useProcessing();
   const navigate = useNavigate();
@@ -20,9 +20,15 @@ export function FileManager() {
   const [activeFilter, setActiveFilter] = useState<FileCategory | 'all'>('all');
   const [sortOption, setSortOption] = useState<'newest' | 'oldest' | 'name' | 'size' | 'type'>('newest');
 
-  const handleDownload = (record: FileRecord) => {
-    const url = getFileUrl(record.id);
-    if (!url) return;
+  const handleDownload = async (record: FileRecord) => {
+    let url = getFileUrl(record.id);
+    if (!url && ensureFileUrl) {
+      url = await ensureFileUrl(record.id);
+    }
+    if (!url) {
+      toast(`Could not prepare download for ${record.name}`, 'error');
+      return;
+    }
     const a = document.createElement('a');
     a.href = url;
     a.download = record.name;

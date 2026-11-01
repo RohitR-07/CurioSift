@@ -85,10 +85,8 @@ export default function Hero() {
             <div className="w-60 bg-white border-r border-border p-4 hidden md:flex flex-col justify-between shrink-0">
               <div className="space-y-4">
                 <div className="flex items-center gap-2.5 px-2">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                    CS
-                  </div>
-                  <span className="font-bold text-sm text-text">CurioSift</span>
+                  <img src="/curiosift-mark.png" alt="CurioSift" className="w-6 h-6 object-contain" />
+                  <span className="font-extrabold text-sm text-text">Curio<span className="text-primary">Sift</span></span>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold">

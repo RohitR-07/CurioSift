@@ -23,7 +23,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         {/* AuthProvider must be inside BrowserRouter so it can use navigate */}
         <AuthProvider>
           {/* FileProvider must wrap ProcessingProvider since Processing depends on useFiles() */}

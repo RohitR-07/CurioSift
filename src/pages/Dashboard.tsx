@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   UploadCloud, 
@@ -14,7 +14,7 @@ import {
 import { Button } from '../components/ui/Button';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { StatCard } from '../components/ui/StatCard';
-import { UploadArea } from '../components/dashboard/UploadArea';
+import { UploadArea, UploadAreaHandle } from '../components/dashboard/UploadArea';
 import { cn } from '../utils/cn';
 import { useToast } from '../context/ToastContext';
 
@@ -41,8 +41,16 @@ export default function Dashboard() {
     });
   }, [isConfigured, getAuthHeader]);
 
+  const uploadAreaRef = useRef<UploadAreaHandle>(null);
+
   const handleUploadClick = () => {
     document.getElementById('upload-area-section')?.scrollIntoView({ behavior: 'smooth' });
+    // Open native file picker immediately
+    if (uploadAreaRef.current) {
+      uploadAreaRef.current.openPicker();
+    } else {
+      document.getElementById('study-materials-file-input')?.click();
+    }
   };
   const handleNavigate = (direction: 'prev' | 'next') => {
     if (!viewingFile) return;
@@ -184,7 +192,10 @@ export default function Dashboard() {
 
       {/* Redesigned Upload Dropzone Section */}
       <div id="upload-area-section" className="scroll-mt-24">
-        <UploadArea onUpload={(files) => toast(`Selected ${files?.length} files for upload`, 'success')} />
+        <UploadArea
+          ref={uploadAreaRef}
+          onUpload={(files) => toast(`Selected ${files?.length} files for upload`, 'success')}
+        />
       </div>
 
       {/* Statistics Cards */}
