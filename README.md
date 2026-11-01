@@ -1,70 +1,38 @@
-# 📚 StudyMate AI
+# 🚀 CurioSift
 
-An AI-powered study platform built with **React**, **TypeScript**, **Tailwind CSS**, and **Vite**.
+### Turn dense textbooks into instant study guides
 
-StudyMate AI helps students upload study materials, generate AI-powered summaries, explain difficult concepts, create quizzes, chat with notes, and study more effectively.
+CurioSift is an AI-powered learning platform designed to transform complex study materials into easy-to-understand learning resources.
 
----
+Upload your study documents, generate summaries, explore difficult concepts, create quizzes, and use AI-powered learning assistance in one place.
 
-## 🚀 Features
+## ✨ Key Features
 
-- 📄 Upload PDF
-- 🤖 AI Summary
-- 💡 AI Explain
-- ❓ Question Generator
-- 💬 AI Chat
-- 🧠 Flashcards
-- 📝 Quiz Generator
-- 📚 Revision Notes
-- 📊 Analytics
-- ⚙️ Settings
-
----
+- 📄 PDF Upload and Document Management
+- 🤖 AI-Powered Study Assistance
+- 📝 AI-Generated Study Notes
+- 🧠 Flashcard Generation
+- 📋 Quiz Generation
+- 💬 Interactive AI Chat
+- 📊 Learning Progress and Analytics
 
 ## 🛠️ Tech Stack
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- Framer Motion
-- React Router
-- Lucide React
+**Frontend:** React, TypeScript, Tailwind CSS, Vite
 
----
+**Backend:** Node.js, Express.js
 
-## 📂 Project Structure
+**Database:** Supabase
 
-```text
-src/
-├── components/
-├── pages/
-├── layouts/
-├── hooks/
-├── context/
-└── assets/
-```
+**AI Integration:** AI-powered language models
 
----
+## 🎯 Project Objective
 
-## 📈 Project Progress
+To make learning easier, faster, and more effective by converting dense educational materials into structured, interactive study resources.
 
-- ✅ Module 1 – Project Setup
-- ✅ Module 2 – Landing Page
-- 🚧 Module 3 – Authentication (In Progress)
+## 👨‍💻 Project
 
----
+**Project Name:** CurioSift
 
-## 🎯 Vision
-
-StudyMate AI is being built as a **100% free AI learning platform**.
-
-Our goal is to help students study smarter using AI without premium subscriptions or feature restrictions.
-
----
-
-## 👨‍💻 Author
-
-**Rohit R**
-
-Built with ❤️ using React & TypeScript.
+**Tagline:** Turn dense textbooks into instant study guides.
+sssss
